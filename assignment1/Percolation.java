@@ -2,6 +2,7 @@
 import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.StdRandom;
 
+import edu.princeton.cs.algs4.QuickFindUF;
 import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 
 public class Percolation {
@@ -9,6 +10,7 @@ public class Percolation {
    private int gridSize;
    private boolean[][] openGrid;
    private WeightedQuickUnionUF gridUnion;
+   // private QuickFindUF gridUnion;
 
    private int openSites;
 
@@ -17,6 +19,7 @@ public class Percolation {
       gridSize = n;
       openGrid = new boolean[gridSize][gridSize];
       gridUnion = new WeightedQuickUnionUF(gridSize * gridSize);
+      //gridUnion = new QuickFindUF(gridSize * gridSize);
 
       openSites = 0;
    }
@@ -26,7 +29,7 @@ public class Percolation {
       if (openGrid[row][col])
          return;
 
-      StdOut.println("Open position (" + row + "," + col + ")");
+      // StdOut.println("Open position (" + row + "," + col + ")");
 
       openSites = openSites + 1;
       openGrid[row][col] = true;
@@ -46,7 +49,7 @@ public class Percolation {
 
       if (!openGrid[row][col]) return;
 
-      StdOut.println("Union position (" + row + "," + col + ") to (" + newRow + "," + newCol + ")");
+      // StdOut.println("Union position (" + row + "," + col + ") to (" + newRow + "," + newCol + ")");
       gridUnion.union(newRow*gridSize + newCol, row*gridSize + col);
    }
 
@@ -111,7 +114,7 @@ public class Percolation {
       String sizeString = args[0];
       int size = Integer.parseInt(sizeString);
 
-      StdOut.println("Testing Percolation with size " + sizeString);
+      // StdOut.println("Testing Percolation with size " + sizeString);
       Percolation p = new Percolation(size);
 
       int maxOpen =  size * size * size; //StdRandom.uniform(size*size);
@@ -126,10 +129,10 @@ public class Percolation {
          i++;
       }
 
-      if (alreadyPercolated)
-         StdOut.println("Percolated with interation " + i);
-      else 
-         StdOut.println("It does not percolated ");
+      // if (alreadyPercolated)
+      //    StdOut.println("Percolated with interation " + i);
+      // else 
+      //    StdOut.println("It does not percolated ");
 
       // p.printGrid();
 
