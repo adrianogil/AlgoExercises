@@ -26,6 +26,9 @@ public class Percolation {
 
    public void open(int row, int col)    // open site (row, col) if it is not open already
    {
+      if (row < 0 || row >= gridSize) return;
+      if (col < 0 || col >= gridSize) return;
+
       if (openGrid[row][col])
          return;
 
@@ -55,6 +58,9 @@ public class Percolation {
 
    public boolean isOpen(int row, int col)  // is site (row, col) open?
    {
+      if (row < 0 || row >= gridSize) return false;
+      if (col < 0 || col >= gridSize) return false;
+
       return openGrid[row][col];
    }
 
@@ -91,23 +97,23 @@ public class Percolation {
       return false;
    }
 
-   private void printGrid()
-   {
-      String line = "";
-      for (int i = 0; i < gridSize; i++)
-      {
-         line = "";
+   // private void printGrid()
+   // {
+   //    String line = "";
+   //    for (int i = 0; i < gridSize; i++)
+   //    {
+   //       line = "";
 
-         for (int j = 0; j < gridSize; j++)
-         {
-            if (openGrid[i][j])
-               line += " " + 1;
-            else
-               line += " " + 0;
-         }
-         StdOut.println(line);
-      }
-   }
+   //       for (int j = 0; j < gridSize; j++)
+   //       {
+   //          if (openGrid[i][j])
+   //             line += " " + 1;
+   //          else
+   //             line += " " + 0;
+   //       }
+   //       StdOut.println(line);
+   //    }
+   // }
 
    public static void main(String[] args)   // test client (optional)
    {

@@ -75,7 +75,7 @@ public class PercolationStats {
     StdOut.println("stddev\t\t\t= " + ps.stddev() );
     StdOut.println("95% confidence interval = [" + ps.confidenceLo() + ", " + ps.confidenceHi() + "]" );
 
-    StdOut.println("\nTotal time " + stopwatch.elapsedTime());
+    // StdOut.println("\nTotal time " + stopwatch.elapsedTime());
 
     
   }
