@@ -1,0 +1,73 @@
+7
+a ar
+rb bt
+tc cy
+yz z
+a arb
+rbtc t
+yy cyy
+9
+a ar
+rb bt
+tc cy
+yz z
+a arb
+rbtc t
+yy cyy
+arbtc a
+yx rbtcyx
+6
+d deara
+ea lan
+r h
+alanhow o
+areyo warey
+u ou
+5
+are yo
+you u
+how nhoware
+alan arala
+dear de
+8
+i ie
+ing ding
+resp orres
+ond pon
+oyc y
+hello hi
+enj njo
+or c
+3
+efgh efgh
+d cd
+abc ab
+3
+a ab
+b bb
+c cc
+12
+a ar
+ra ar
+ra ar
+ra ar
+ra ar
+ra ar
+ra ar
+ra ar
+ra ar
+ra ar
+ra ar
+ra ar
+4
+de der
+aralanho ala
+ware nh
+you owareyou
+6
+d deara
+ea lan
+r h
+alanhow o
+ar warey
+eyou ou

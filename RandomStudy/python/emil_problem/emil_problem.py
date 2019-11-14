@@ -4,6 +4,9 @@ import utils
 from pyutils.decorators import debug
 
 
+DEBUG_MODE = True
+
+
 def get_best_answer(suitable_answers):
     min_size = 10000000
 
@@ -36,6 +39,10 @@ def verify_pair_matching(left_pair, right_pair):
 
 
 def emil_problem(left_pair, right_pair):
+    if DEBUG_MODE:
+        print(left_pair)
+        print(right_pair)
+
     total_pairs = len(left_pair)
 
     diff_matrix = [[None] * total_pairs for t in range(0, total_pairs)]
@@ -64,6 +71,9 @@ def emil_problem(left_pair, right_pair):
                         while rev_line >= 0 and (pairs is None or pairs[0] is None or pairs[1] is None):
                             pairs = str_matrix[rev_line][last_line_col]
                             rev_line -= 1
+
+                        rev_line += 1
+                        # print("%s,%s: %s" % (rev_line, last_line_col, str_matrix[rev_line][last_line_col]))
 
                         lcol = last_line_col
                         while rev_line >= 0:
@@ -99,10 +109,19 @@ def emil_problem(left_pair, right_pair):
             if diff_matrix[line][col] == 0 and str_matrix[line][col][0] == str_matrix[line][col][1]:
                 suitable_answers.append(str_matrix[line][col][0])
 
-    # utils.print_matrix(diff_matrix)
+    if DEBUG_MODE:
+        print("Diff matrix:")
+        utils.print_matrix(diff_matrix)
 
-    # for a in suitable_answers:
-    #     print(a)
+        print("Index matrix:")
+        utils.print_matrix(index_matrix)
+
+        print("Solutions:")
+        for a in suitable_answers:
+            print(a)
+
+        print(left_pair)
+        print(right_pair)
 
     if len(suitable_answers) == 0:
         return "IMPOSSIBLE"
