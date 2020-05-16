@@ -1,0 +1,1 @@
+cat input.txt | python3 saveprincess.py
