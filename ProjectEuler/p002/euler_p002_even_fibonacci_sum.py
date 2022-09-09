@@ -4,11 +4,13 @@
 import functools
 
 @functools.lru_cache(maxsize=None) #128 by default
-def fibonacci(x):
-	if x < 2:
-		return 1
+def even_fibonacci(x):
+	if x <= 0 :
+		return 0
+	if x == 1:
+		return 2
 	
-	return fibonacci(x-1) + fibonacci(x-2)
+	return 4 * even_fibonacci(x-1) + even_fibonacci(x-2)
 
 
 def sum_even_fibonacci_below(below_target):
@@ -16,7 +18,7 @@ def sum_even_fibonacci_below(below_target):
 	x = 0
 
 	while True:
-		fx = fibonacci(x)
+		fx = even_fibonacci(x)
 
 		if fx > below_target:
 			return total_sum
