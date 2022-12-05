@@ -36,8 +36,11 @@ def move_stacks(lines):
                 total_crate_to_move = int(line[5:from_index])
                 source_stack = int(line[from_index+5:to_index]) - 1
                 destination_stack = int(line[to_index+2:]) - 1
+                moved_crates = []
                 for _ in range(total_crate_to_move):
                     crate = stacks[source_stack].pop(0)
+                    moved_crates.append(crate)
+                for crate in reversed(moved_crates):
                     stacks[destination_stack].insert(0, crate)
             else:
                 continue
@@ -75,7 +78,7 @@ if __name__ == '__main__':
 
     if test_mode:
         print("Got", result)
-        assert result == "CMZ"
+        assert result == "MCD"
         print("\nCorrect Result!")
     else:
         print("Result is ", result) 
