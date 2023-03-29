@@ -65,27 +65,28 @@ function printState(state) {
     let cols = stateSizeX;
 
     for (let i = 0; i < rows; i++) {
-      let row = 'R' + i;
+      let row = '';
       for (let j = 0; j < cols; j++) {
         let index = i * cols + j;
         row += state[index] + ' ';
       }
+      row += ' - ' + i;
       console.log(row);
     }
 }
 
-function tryToPredictNextMazeState() {
-    const lastState = mazeStates[mazeStates.length - 1];
+function tryToPredictNextMazeState(from) {
+    const lastState = mazeStates[from];
     const possibleNextState = [];
 
     for (let i = 0; i < lastState.length; i++) {
+        var nextCellState = 1;
+
         if (i != 0 && i != (lastState.length - 1) && lastState[i] == 0) {
             // Check neighbors
             
             var xs = i % 8;
-            var ys = Math.floor(i / 8);
-
-            var nextCellState = 1;
+            var ys = Math.floor(i / 8);            
 
             for (let p = 0; p < deadPatterns.length; p++) {
                 var pattern = deadPatterns[p];
@@ -99,7 +100,7 @@ function tryToPredictNextMazeState() {
                             var xn = xs + xk;
                             var yn = ys + yk;
 
-                            if (xn >= 0 && xn < stateSizeX && yn >= 0 && yn < stateSizeY) {
+                            if (xk != 0 && yk != 0 && xn >= 0 && xn < stateSizeX && yn >= 0 && yn < stateSizeY) {
                                 var itarget = yn * 8 + xn;
                                 if (lastState[itarget] == pattern[k]) {
                                     nextCellState = 0;
@@ -112,10 +113,8 @@ function tryToPredictNextMazeState() {
                     }
                 }
             }
-            possibleNextState.push(nextCellState);
-        } else {
-            possibleNextState.push(1);
         }
+        possibleNextState.push(nextCellState);
     }
 
     console.log(possibleNextState);
