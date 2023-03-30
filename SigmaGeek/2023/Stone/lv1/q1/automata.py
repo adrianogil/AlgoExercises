@@ -30,7 +30,7 @@ def get_next_state(state, size_x, size_y):
         # print(dead_neighbors)
         if state[i] and dead_neighbors in [2,3]:
             next_value = 0
-        elif not state[i] and (live_neighbors <= 4):
+        elif not state[i] and dead_neighbors <= 6 and live_neighbors <= 4:
             next_value = 0
         next_state.append(next_value)
     next_state += [1]

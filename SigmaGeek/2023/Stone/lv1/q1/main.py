@@ -58,7 +58,7 @@ class AutomataMaze:
                 live_neighbors += 1
         if last_cell_value == LIVE_CELL and dead_neighbors in [2,3]:
             cell_value = DEAD_CELL
-        elif last_cell_value == DEAD_CELL and live_neighbors <= 4:
+        elif last_cell_value == DEAD_CELL and dead_neighbors <= 6 and live_neighbors <= 4:
             cell_value = DEAD_CELL
 
         self.maze_states[t][i] = cell_value
