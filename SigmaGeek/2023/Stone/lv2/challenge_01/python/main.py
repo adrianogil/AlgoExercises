@@ -15,8 +15,8 @@ INITIAL_CELL = 3
 LIVE_CELL    = 1 # Green
 DEAD_CELL    = 0 # White
 
-MATRIX_TYPE  = np.byte
-# MATRIX_TYPE  = np.uint8
+# MATRIX_TYPE  = np.byte
+MATRIX_TYPE  = np.uint8
 
 # Debug constant
 # For debugging, only change it to true
@@ -26,14 +26,18 @@ DEBUG_MODE = "--debug" in sys.argv
 
 
 def fft_convolve2d(board, kernal):
+    #  Compute the 2D FFT of the input array board and the kernel kernal.
     board_ft = fft2(board)
     kernal_ft = fft2(kernal)
     height, width = board_ft.shape
+    # Computes the inverse FFT of the product of the 2D FFTs of the input array and kernel. 
+    # The result is a complex array, so we take only the real part.
     convolution = np.real(ifft2(board_ft * kernal_ft))
-    convolution = np.roll(convolution, - int(height / 2) + 1, axis=0)
-    convolution = np.roll(convolution, - int(width / 2) + 1, axis=1)
+    # shift the zero-frequency component to the center of the spectrum.
+    convolution = np.roll(convolution, - int(height // 2), axis=0)
+    convolution = np.roll(convolution, - int(width // 2), axis=1)
+    # returns the convolution result rounded to nearest integer.
     return convolution.round()
-
 
 # Main class for solving the maze
 class AutomataMaze:
@@ -90,11 +94,11 @@ class AutomataMaze:
         print(f"Finished reading maze data with {self.size_y} rows and {self.size_x} columns")
 
         shape = self.maze_state.shape
+        shape = (shape[0] + 2, shape[1] + 2)
+
         neighborhood = np.array([[1, 1, 1], [1, 0, 1], [1, 1, 1]])
         n_height, n_width = neighborhood.shape
         self.kernal = np.zeros(shape)
-        # self.kernal[(shape[0] - n_height - ((shape[0] + 1) % 2)) // 2 : (shape[0] + n_height) // 2,
-        #             (shape[1] - n_width - ((shape[1] + 1) % 2)) // 2 : (shape[1] + n_width) // 2] = neighborhood
         self.kernal[(shape[0] - n_height) // 2 : ((shape[0] - n_height) // 2) + n_height,
                     (shape[1] - n_width) // 2 : ((shape[1] - n_width) // 2) + n_width] = neighborhood
 
@@ -113,7 +117,7 @@ class AutomataMaze:
         ]
         # max_pos_list_size = self.size_x + self.size_y + 1
         # max_pos_list_size = max(self.size_x, self.size_y)/2
-        max_pos_list_size = 500
+        max_pos_list_size = 1000
 
         self.max_path_repetition = 4
         max_t = 10000000
@@ -175,15 +179,24 @@ class AutomataMaze:
     def calculate_next_state(self):
         self.rule = [[4,5], [2,3,4]]
         start_time = time.perf_counter()    # 1
-        convolution = fft_convolve2d(self.maze_state, self.kernal)
+        padding_maze_state = np.pad(self.maze_state, ((1, 1), (1, 1)), 'constant', constant_values=0)
+        convolution = fft_convolve2d(padding_maze_state, self.kernal)
         shape = convolution.shape
         new_board = np.zeros(shape, dtype=MATRIX_TYPE)
-        new_board[np.where(np.in1d(convolution, self.rule[1]).reshape(shape)
-                           & (self.maze_state == DEAD_CELL))] = LIVE_CELL
+
         new_board[np.where(np.in1d(convolution, self.rule[0]).reshape(shape)
-                           & (self.maze_state == LIVE_CELL))] = LIVE_CELL
+                           & (padding_maze_state == LIVE_CELL))] = LIVE_CELL
+        new_board[np.where(np.in1d(convolution, self.rule[1]).reshape(shape)
+                           & (padding_maze_state == DEAD_CELL))] = LIVE_CELL
+
+        # Remove padding
+        new_board = new_board[1:-1, 1:-1]
+
         new_board[self.initial_pos[1], self.initial_pos[0]] = DEAD_CELL
         new_board[self.target_pos[1], self.target_pos[0]] = DEAD_CELL
+
+        # import pdb; pdb.set_trace() # Start debugger
+
         self.next_maze_state = new_board
         # for x in range(0, self.size_x):
         #     for y in range(0, self.size_y):
@@ -252,6 +265,15 @@ def is_int(s):
         return True
     except ValueError:
         return False
+
+def print_array(nparray):
+    rows, cols = nparray.shape
+
+    for i in range(rows):
+        row = ''
+        for j in range(cols):
+            row += str(int(nparray[i,j]))
+        print(row)
 
 def print_state(state, state_size_x, state_size_y):
     rows = state_size_y
