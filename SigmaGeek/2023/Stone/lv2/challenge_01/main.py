@@ -1,3 +1,5 @@
+import numpy as np
+
 import psutil
 import time
 import os
@@ -37,15 +39,21 @@ class AutomataMaze:
             lines = f.readlines()
 
         # Process input lines and create maze data
+        y = 0
         for line in lines:
+            x = 0
             for c in line:
                 if is_int(c):
                     cell_value = int(c)
                     if cell_value == INITIAL_CELL:
                         initial_i = len(maze)
+                        # cell_value = 0
                     elif cell_value == FINAL_CELL:
                         final_i = len(maze)
+                        # cell_value = 0
                     maze.append(cell_value)
+                x += 1
+            y += 1
             if self.size_x == 0:
                 self.size_x = len(maze)
         self.size_y = len(maze) // self.size_x
@@ -53,7 +61,10 @@ class AutomataMaze:
         self.initial_pos = self.get_xy(initial_i)
         self.target_pos = self.get_xy(final_i)
 
-        self.maze_states.append(maze)
+        # self.maze_state = np.array(maze, dtype=np.byte)
+        # self.next_maze_state = np.array(maze, dtype=np.byte)
+
+        self.maze_states.append(np.array(maze, dtype=np.uint8))
         print(f"Finished reading maze data with {self.size_y} rows and {self.size_x} columns")
 
     # Find path through the maze
@@ -88,8 +99,8 @@ class AutomataMaze:
             best_pos_distance = self.size_x * self.size_y * 10000
 
             # Perf improvements
-            # self.calculate_all_state(current_t)
-            # self.maze_states[current_t - 1] = []
+            self.calculate_all_state(current_t)
+            self.maze_states[current_t - 1] = []
 
             print("Movements analized: ", len(current_pos_list), " (t ", current_t, ")")
             if DEBUG_MODE:
@@ -135,7 +146,7 @@ class AutomataMaze:
         if t >= current_maze_t:
             # add new maze states
             for new_t in range(current_maze_t, t + 1):
-                self.maze_states.append([UNKNOWN_CELL] * (self.size_x * self.size_y))
+                self.maze_states.append(np.full((self.size_y * self.size_x, 1), UNKNOWN_CELL))
                 self.maze_states[new_t][self.get_i(*self.initial_pos)] = INITIAL_CELL
                 self.maze_states[new_t][self.get_i(*self.target_pos)] = FINAL_CELL
     
@@ -173,10 +184,6 @@ class AutomataMaze:
                 neightbor_value = self.get_cell_value(xn, yn, t - 1)
                 if neightbor_value == LIVE_CELL:
                     live_neighbors += 1
-                if neightbor_value == DEAD_CELL:
-                    dead_neighbors += 1
-            elif (xk != 0 or yk != 0):
-                dead_neighbors += 1
 
         # Propagation rule
         # 
