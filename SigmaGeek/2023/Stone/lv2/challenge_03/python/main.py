@@ -108,13 +108,15 @@ class AutomataMaze:
     def find_path(self):
         current_t = 0
 
+        self.total_special_power = 30
+
         directions = []
         # Find the best cells to switch states
-        target_states = self.switch_states_of_best_cells(30)
-        for target_state in target_states:
-            directions.append("A")
-            directions.append("%d" % (target_state[0],))
-            directions.append("%d" % (target_state[1],))
+        # target_states = self.switch_states_of_best_cells(30)
+        # for target_state in target_states:
+        #     directions.append("A")
+        #     directions.append("%d" % (target_state[0],))
+        #     directions.append("%d" % (target_state[1],))
 
         # Initialize position list
         current_pos_list = [
@@ -127,7 +129,7 @@ class AutomataMaze:
         ]
         # max_pos_list_size = self.size_x + self.size_y + 1
         # max_pos_list_size = max(self.size_x, self.size_y)/2
-        max_pos_list_size = 500
+        max_pos_list_size = 250
 
         self.max_path_repetition = 4
         max_t = 10000000
@@ -152,14 +154,34 @@ class AutomataMaze:
                     print(pd["pos"])
                 import pdb; pdb.set_trace() # Start debugger
 
+            directions_to_add = []
+
             # Perf improvements
             if self.total_alive_cells > 0:
                 self.calculate_next_state()
+
+                if self.total_special_power > 0:
+                    is_useful_to_activate_special_power = False
+                    target_cell = None
+
+                    for pos in current_pos_list[:10]:
+                        for mov in ["D", "R"]:
+                            next_pos = pos["pos"] + possible_movements[mov]
+                            if self.is_valid_pos_to_be_switched(next_pos, pos["path"]):
+                                target_cell = next_pos
+                                is_useful_to_activate_special_power = True
+                                break
+
+                    if is_useful_to_activate_special_power:
+                        self.maze_state[target_cell[1], target_cell[0]] = DEAD_CELL
+                        self.calculate_next_state()
+                        self.total_special_power -= 1
+                        print(f" - Used special power ({self.total_special_power})")
+                        directions.append("A")
+                        directions.append("%d" % (target_cell[0],))
+                        directions.append("%d" % (target_cell[1],))
             else:
                 max_pos_list_size = 20
-
-            # print_array(self.next_maze_state[0:100, 0:100])
-
 
             # Analyze movements
             for pos in current_pos_list:
@@ -170,7 +192,7 @@ class AutomataMaze:
                             "pos": next_pos,
                             "path": pos["path"] + [next_pos],
                             "dist": self.sqrdist(next_pos, self.target_pos),
-                            "directions": pos["directions"] + [mov]
+                            "directions": pos["directions"] + [mov] + directions_to_add
                         }
                         if next_pos_data["dist"] < best_pos_distance:
                             best_pos_distance = next_pos_data["dist"]
@@ -216,7 +238,7 @@ class AutomataMaze:
             if self.maze_state[y,x] == LIVE_CELL:
                 self.maze_state[y,x] = DEAD_CELL
             else:
-                print(f"Error when trying to switch state of cell ({x},{y})")  
+                print(f"Error when trying to switch state of cell ({x},{y})")
 
         return target_states
 
@@ -225,6 +247,7 @@ class AutomataMaze:
         start_time = time.perf_counter()    # 1
         padding_maze_state = np.pad(self.maze_state, ((1, 1), (1, 1)), 'constant', constant_values=0)
         convolution = fft_convolve2d(padding_maze_state, self.kernal)
+        self.convolution = convolution
         shape = convolution.shape
         new_board = np.zeros(shape, dtype=MATRIX_TYPE)
 
@@ -281,6 +304,15 @@ class AutomataMaze:
                self.next_maze_state[pos[1], pos[0]] == DEAD_CELL and \
                not [p for p in next_pos_list if p["pos"][0] == pos[0] and p["pos"][1] == pos[1]] and \
                len([p for p in path[-10:] if p[0] == pos[0] and p[1] == pos[1]]) <= self.max_path_repetition
+
+    def is_valid_pos_to_be_switched(self, pos, path):
+        return pos[0] >= 0 and pos[0] < self.size_x and \
+               pos[1] >= 0 and pos[1] < self.size_y and \
+               self.next_maze_state[pos[1], pos[0]] == LIVE_CELL and \
+               len([p for p in path[-10:] if p[0] == pos[0] and p[1] == pos[1]]) <= self.max_path_repetition and \
+               self.convolution[pos[1] + 1, pos[0] + 1] == 5
+
+
 
     # Calculate the squared distance between two vectors
     def sqrdist(self, v1, v2):
@@ -371,6 +403,6 @@ if __name__ == '__main__':
     result = maze.find_path()
     end_time = time.perf_counter()      # 2
     run_time = end_time - start_time    # 3
-    print(f"Found a path with {len(result['path'])} steps in {run_time:.4f} secs")
+    print(f"Found a path with {len(result['path'])} steps in {run_time:.4f} secs (Used {30 - maze.total_special_power} times the special power)")
     save_result_directions(result["directions"])
     print("Saved result.txt!")
